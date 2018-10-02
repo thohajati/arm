@@ -1,0 +1,232 @@
+static uint8_t iso14443_4_handler(uint8_t xdata* pbuff)
+{
+    unsigned char xdata cmd;
+    unsigned char xdata blocknum;
+    cmd = pbuff[0] & 0xFE;
+    blocknum = pbuff[0] & 0x01;
+    switch(cmd)
+    {
+        case RATS:
+            /* Hardcoded the ATS command */
+            pbuff[0] = 0x06;
+			pbuff[1] = 0x75;
+            pbuff[2] = 0x77;
+            pbuff[3] = 0x81;
+            pbuff[4] = 0x02;
+            pbuff[5] = 0x80;
+			vucalc_crc(NFC_BUFFER, &NFC_BUFFER[7], &NFC_BUFFER[6], 6);
+			flag=2;
+            vuTX(8);
+        break;
+        
+        case PPS: //d0 11 0f
+            vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);
+			flag=3;
+            vuTX(3); 
+        break;        
+        
+        case RBLOCK_NAK:
+            if (blocknum == 0x01)
+                pbuff[0] = 0xA2;
+            else
+                pbuff[0] = 0xA3;
+            
+            vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);
+            vuTX(3);
+        break;
+        
+        case DESELECT:
+            vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);
+            vuTX(3);
+           isostate = ISO_STATE_HALT;
+        break;
+        
+        case 0x00:
+            break;
+    }
+    return PROTO14443_4_CONT;
+}
+
+	if(flag == 1)
+	  P0 = 0x1;
+	else if(flag==2)
+	  P0=0x2;
+	else if(flag==3)
+	  P0=0x3;
+	else if(flag==4)
+	  P0=0x4;
+	else if(flag==5)
+	  P0=0x5;
+
+
+static uint8_t iso14443_4_handler(uint8_t xdata* pbuff)
+{
+    unsigned char xdata cmd;
+    unsigned char xdata blocknum;
+    cmd = pbuff[0] & 0xFE;
+    blocknum = pbuff[0] & 0x01;
+	if (flag==2)
+		tempbuff[1]=0xAA;
+	else if (flag==3)
+		tempbuff[1]=0xAB;
+	else
+		tempbuff[1]=0xEE;
+    switch(cmd)
+    {
+        case RATS:
+            /* Hardcoded the ATS command */
+            pbuff[0] = 0x06;
+			pbuff[1] = 0x75;
+            pbuff[2] = 0x77;
+            pbuff[3] = 0x81;
+            pbuff[4] = 0x00;
+            pbuff[5] = 0x80;
+			vucalc_crc(NFC_BUFFER, &NFC_BUFFER[7], &NFC_BUFFER[6], 6);
+			flag=2;
+            vuTX(8);
+        break;
+
+        case PPS: //d0 11 0f
+            tempbuff[0]=pbuff[2];
+			vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);
+			flag=3;
+			vuTX(3);
+			CFG = tempbuff[0] & 0xf; 
+        break;
+		        
+        case IBLOCK: //02 00
+            /* Skipped the CLA=0x00 */
+             if(pbuff[1] == 0x00)
+			 {
+                pbuff[1] = 0x90;
+                pbuff[2] = 0x00;
+                vucalc_crc(NFC_BUFFER, &NFC_BUFFER[4], &NFC_BUFFER[3], 3);
+                vuTX(5);             
+             }
+			 else if(pbuff[1]==0x90 && pbuff[2]==0x60 && pbuff[3]==0x00)
+			 {
+
+				pbuff[1] = 0x04;
+				pbuff[2] = 0x01;
+				pbuff[3] = 0x01;
+				pbuff[4] = 0x01;
+				pbuff[5] = 0x00;
+				pbuff[6] = 0x1a;
+				pbuff[7] = 0x05;
+				pbuff[8] = 0x91;
+                pbuff[9] = 0xAF;
+                vucalc_crc(NFC_BUFFER, &NFC_BUFFER[11], &NFC_BUFFER[10], 10);
+                vuTX(12);             
+             }
+			 else
+			 {
+			 	pbuff[1] = 0x90;
+                pbuff[2] = 0xFF;
+				pbuff[3] = 0xFF;
+                vucalc_crc(NFC_BUFFER, &NFC_BUFFER[5], &NFC_BUFFER[4], 4);
+                vuTX(6);  	
+			 }
+        return PROTO14443_4_FINISHED;        
+        
+        case RBLOCK_NAK:
+            if (blocknum == 0x01)
+                pbuff[0] = 0xA2;
+            else
+                pbuff[0] = 0xA3;
+            
+            vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);
+            vuTX(3);
+        break;
+        
+        case DESELECT:
+            vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);
+            vuTX(3);
+           isostate = ISO_STATE_HALT;
+        break;
+                
+        case 0x00:
+            break;
+
+    }
+    return PROTO14443_4_CONT;
+}
+
+        case IBLOCK: //02 00
+            /* Skipped the CLA=0x00 */
+			status.get_version=0;
+             
+			 if(pbuff[1] == 0x00)
+			 {
+                pbuff[1] = 0x90;
+                pbuff[2] = 0x00;
+                vucalc_crc(NFC_BUFFER, &NFC_BUFFER[4], &NFC_BUFFER[3], 3);
+                vuTX(5);             
+             }
+			 else if(status.get_version==0 && pbuff[2]==0x60 && pbuff[3]==0x00)
+			 {
+			    pbuff[1] = 0x91;
+                pbuff[2] = 0xAF;
+				pbuff[3] = 0xFF;
+                vucalc_crc(NFC_BUFFER, &NFC_BUFFER[5], &NFC_BUFFER[4], 4);
+                vuTX(6);             
+             }
+			 else
+			 {
+			 	pbuff[1] = 0x90;
+                pbuff[2] = 0xFF;
+				pbuff[3] = 0xFF;
+                vucalc_crc(NFC_BUFFER, &NFC_BUFFER[5], &NFC_BUFFER[4], 4);
+                vuTX(6);  	
+			 }
+        return PROTO14443_4_FINISHED;
+
+
+================ANTICOLL CL1 SIMPAN=====================
+					
+					j=RX_ADDR_BIT; //bit 
+					k=RX_ADDR_BYTE; //byte
+					pbuff[0]=UID[k-3] >> j;
+					if(k==2)
+					{
+						pbuff[0]=0x88 >> j;
+						for(i=0;i<k+1;i++)
+						{
+		 					pbuff[i+1]=UID[i];	
+							k=RX_ADDR_BYTE;
+						}
+						pbuff[k+2]=bcc1;
+						TX_ADDR_BIT=(8-j);
+						vuTX(k+2);
+	
+					}
+					
+					else if (k==3)
+					{
+						for(i=0;i<k-1;i++)
+						{
+		 					pbuff[i+1]=UID[i+1];
+							k=RX_ADDR_BYTE;
+						}
+						pbuff[k]=bcc;
+						TX_ADDR_BIT=(8-j);
+						vuTX(k);
+					}
+
+					else if(k==4)
+					{
+	 					for(i=0;i<k-3;i++)
+						{
+							pbuff[i+1]=UID[i+2];
+							k=RX_ADDR_BYTE;
+						}
+						pbuff[k-2]=bcc;
+						TX_ADDR_BIT=(8-j);
+						vuTX(k-2);
+					}
+
+					else if(k==5)
+					{
+	 					pbuff[1]=bcc;
+						TX_ADDR_BIT=(8-j);
+						vuTX(1);
+					}
