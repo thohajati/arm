@@ -120,9 +120,9 @@ int BlockHandler(PBLOCK pblock)
 			if(apdu.pheader->INS == 0x02)
 			{	
 				//Chip Erase
-	   			FLASHX = 0x05;	  //Enable erase mode
+	   			NVM_CON |= 0x01;	  //Enable erase mode
 	   			flash_wr((unsigned char*)0x5555, 0x10);
-	   			FLASHX = 0x00;
+	   			NVM_CON &= 0xFE;
 			}
 			if(apdu.pheader->INS == 0x03)
 			{

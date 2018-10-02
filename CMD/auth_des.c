@@ -6,6 +6,7 @@
 #include "vutdes.h"			
 #include "cmd.h"
 
+
 void auth_des(ISOAPDU * papdu_command)
 {    
     uint16_t i,j;
@@ -16,6 +17,7 @@ void auth_des(ISOAPDU * papdu_command)
 						      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; 
 
     uint8_t  buffer[256]; 
+		unsigned char f_auth;
 
 	if((cmd_status.authentication == 0) || (cmd_status.authentication == 2)) 
 	{
@@ -47,9 +49,10 @@ void auth_des(ISOAPDU * papdu_command)
 
 				get_rand(8,randB);
 
-			  xstsm212_tdes16_encrypt_tx(randB, key, buffer, 8);											 
-        iso14443send(buffer, 8, ADDITIONAL_FRAME);	
-				cmd_status.authentication = 1; 
+			  xstsm212_tdes16_encrypt_tx(randB, key, buffer, 8);	
+				cmd_status.authentication = 1; 				
+        iso14443send(buffer, 8, ADDITIONAL_FRAME);
+				f_auth = 1; // hanya utk delay supaya jalan di sof 26 sept
 			}
 			else
 			{
@@ -64,9 +67,11 @@ void auth_des(ISOAPDU * papdu_command)
 		}
 	}
 	else if (cmd_status.authentication == 1)
-	{
-	 
-	
+	{	
+
+			
+//		if(f_auth){}
+			
 	   xstsm212_tdes16_encrypt_rx(papdu_command->papdudata, key, buffer, 16);
        					   
 	   j=0;
@@ -76,7 +81,8 @@ void auth_des(ISOAPDU * papdu_command)
 			j++;
 	
 	   }
-	
+
+				
 	   if ((j==7) && (buffer[15] == randB[0]))
 	   {
 	
@@ -122,6 +128,7 @@ void auth_des(ISOAPDU * papdu_command)
             iso14443send(buffer,8, OPERATION_OK);
           
 			cmd_status.authentication = 2;
+			
 	
 	   }
 	   else

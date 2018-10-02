@@ -26,14 +26,14 @@ void master_key_format(void)
 	
 	for(i=0; i<16; i++)
     { 		 
-		 FLASHX |= 0x2;		 
+		 //NVM_CON |= 0x2;		 
 		 master_key[i] = 0;		
-		 FLASHX &= 0xFD;
+		 //NVM_CON &= 0xFD;
     }	
 		 
-	FLASHX |= 0x2;	
+	//NVM_CON |= 0x2;	
 	master_key_setting[0] = 0x0F;	
-	FLASHX &= 0xFD;
+	//NVM_CON &= 0xFD;
 }
 
 void firmware_init(ISOAPDU * apdu)
@@ -148,9 +148,9 @@ firmware_xirka_response(ISOAPDU * papdu_command)
 	if(papdu_command->pheader->INS == 0x02)
 			{	
 				//Chip Erase
-	   			FLASHX = 0x05;	  //Enable erase mode
+	   			NVM_CON |= 0x01;	  //Enable erase mode
 	   			*(unsigned char*)0x5555 = 0x10;
-	   			FLASHX = 0x00;
+	   			NVM_CON &= 0xFE;
 			}
 			if(papdu_command->pheader->INS == 0x03)
 			{
@@ -196,8 +196,8 @@ void delay_2 (void)
 void delay_3 (void)
 {
 	int z;
-		for(z=0; z<6; z++)
-			{
-				z=z+0;
-			}
+//		for(z=0; z<1; z++)
+//			{
+				z++;//=z+0;
+//			}
 }

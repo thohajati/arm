@@ -50,13 +50,6 @@
 /* AHB peripherals*/
 #define CMSDK_SYSCTRL_BASE      (CMSDK_AHB_BASE + 0xF000UL)
 
-// AFE Control Signal
-#define CLKCFG     (*((volatile unsigned int*)0x40020008U))
-#define VDET       (*((volatile unsigned int*)0x4002000CU))
-#define IFC        (*((volatile unsigned int*)0x40020010U))
-#define PWR        (*((volatile unsigned int*)0x40020014U))
-#define TRIM       (*((volatile unsigned int*)0x40020018U))
-	
 #define ISOCON     (*((volatile unsigned int*)0x4000C000U))
 #define ISO_DATA   (*((volatile unsigned int*)0x4000C004U))
 #define ISO_DONE   (*((volatile unsigned int*)0x4000C008U))	
@@ -66,12 +59,22 @@
 #define ETU_CTRL   (*((volatile unsigned int*)0x4000C014U))
 #define ETU_START  (*((volatile unsigned int*)0x4000C018U))
 #define ETU_CLEAR  (*((volatile unsigned int*)0x4000C01CU))
+
+// Reg Control Signal
+#define NVM_CON    (*((volatile unsigned int*)0x4000D000U))
+#define NVM_INT    (*((volatile unsigned int*)0x4000D004U))
+#define CLKCON     (*((volatile unsigned int*)0x4000D008U))
+#define CLKCFG     (*((volatile unsigned int*)0x4000D00CU))
+#define VDET       (*((volatile unsigned int*)0x4000D010U))
+#define IFC        (*((volatile unsigned int*)0x4000D014U))
+#define PWR        (*((volatile unsigned int*)0x4000D018U))
+#define TRIM       (*((volatile unsigned int*)0x4000D01CU))
+#define NVM_SIZE   (*((volatile unsigned int*)0x4000D020U))
+#define SRC_ADDR   (*((volatile unsigned int*)0x4000D024U))
+#define DST_ADDR   (*((volatile unsigned int*)0x4000D028U))
+#define DEBUG      (*((volatile unsigned int*)0x4000D02CU))
 	
-#define FLASHX     (*((volatile unsigned int*)0x40020000U))
-#define CLKCON     (*((volatile unsigned int*)0x40020004U))
-#define DEBUG      (*((volatile unsigned int*)0x40020020U))
-	
-#define NFC_BUFFER ( ( unsigned char*)0x20002780U )
+#define NFC_BUFFER ( ( unsigned char*)0x20002700U )
 #define CL_CON     (*((volatile unsigned int*)0x40003004U))
 #define CL_CFG     (*((volatile unsigned int*)0x40003008U))
 #define CL_SIZE    (*((volatile unsigned int*)0x4000300CU))	

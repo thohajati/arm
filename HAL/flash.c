@@ -10,9 +10,9 @@ void flash_sector_erase(unsigned char *addr)
 	if(((unsigned int)addr) >= ADDR_MIN)
 	{		
 		addr = (unsigned char*)((unsigned int)addr>> 9); // 1 sector = 512 byte
-		FLASHX |= 0x00000001;	  //Enable erase mode
+		NVM_CON |= 0x00000001;	  //Enable erase mode
 		*addr = 0x30;
-		FLASHX &= 0xFFFFFFFE;
+		NVM_CON &= 0xFFFFFFFE;
 	} 
 }
 
@@ -65,6 +65,23 @@ void flash_byte_set(unsigned char * addr, unsigned char value)
 //  	iso_rx_enable();
 //
 //}
+
+void flash_write_block(unsigned char * dest, unsigned char* source, unsigned short len) {
+
+	NVM_SIZE = len;
+	SRC_ADDR = (unsigned int)source;
+	DST_ADDR = (unsigned int)dest;
+	
+	// Disable Sleep SLEEPDEEP
+	*(unsigned int*) 0xE000ED10 = 0x00000000;
+	
+	NVM_CON |= 0x04; // Enable Write Flash
+  __WFI();
+  NVM_CON &= 0xFB; // Disable Write Flash
+	
+	// Enable Sleep SLEEPDEEP
+	*(unsigned int*) 0xE000ED10 = 0x00000004;
+}
 
 void flash_write(unsigned char *sector_addr, 
                  unsigned short addr_offset, 

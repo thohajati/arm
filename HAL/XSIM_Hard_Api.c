@@ -34,13 +34,13 @@ void Int_Init(void)
     FlashLoader_ASM();
   }
 		
-	// Clear interrupt
-	FLASHX &= 0xFB; //int flash
+	  // Clear interrupt
+	NVM_INT = 1; // Clear Int flash
 	ISO_DONE = 0;   //ISO 7816 
-	CL_CON = 0x0;   //ISO 14443
+	CL_CON = 0;   //ISO 14443
 	
-	*((volatile unsigned long *)(0xE000E100)) = 0x0007E000;//0x00070000;//Enable interrupt #15, 16, 17 & 18
-	
+	//*((volatile unsigned long *)(0xE000E100)) = 0x0003E100;//Enable interrupt #8, 13, 14, 15, 16, 17
+	*((volatile unsigned long *)(0xE000E100)) = 0x0002E100;//Enable interrupt #8, 13, 14, 15, 17
 	// Sleep SLEEPDEEP
 	*(unsigned int*) 0xE000ED10 = 0x00000004;
 	
@@ -96,7 +96,10 @@ void iso_tx(unsigned char tx_data)
 unsigned char iso_rx(void)
 {
 	// WFI  Test
-	__WFI();
+	//__WFI();
+	
+	while(ISO_DONE == 0);
+	ISO_DONE = 0;
 	return(ISO_DATA);
 }
 
@@ -198,10 +201,8 @@ vucalc_crc(unsigned char * pdatain,
 	CRC_DATA = 0x6363;
 	
 	CRC_INIT = 0x0;
-	FLASHX = 0xF0;	
 	
 	for(i=0; i<len; i++){
-		FLASHX = i<<4;
 	  CRC_DATA = *(pdatain+i);
 	}
  
@@ -223,11 +224,10 @@ char xstsm212_verify_crc(unsigned char* datain, unsigned int dinlen)
 	CRC_DATA = 0x6363;
 	
 	CRC_INIT = 0x0;		
-	FLASHX = 0xF0;
+
     
     //Calculate crc
     for (i=0; i<dinlen; i++){
-			FLASHX = i<<4;
 	    CRC_DATA = datain[i];    	
     }
     
@@ -313,11 +313,11 @@ void ISO_TX_Handler(void)
 
 void FLASH_Handler(void)
 { 
-	FLASHX &= 0xFB;
+	NVM_INT = 1; // Clear int flash
 }
 
-void ETU_Timer_Handler(void)
-{ 
+void TIMER0_Handler(void)
+{
 }
 
 void NFC_RX_Handler(void)
