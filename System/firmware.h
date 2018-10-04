@@ -36,7 +36,6 @@ void master_key_format(void);
 void firmware_response(ISOAPDU * papdu_command);	
 void firmware_iso7816_response(ISOAPDU * papdu_command);
 void firmware_xirka_response(ISOAPDU * papdu_command);
-
 void delay (void);
 void delay_2 (void);
 void delay_3 (void);

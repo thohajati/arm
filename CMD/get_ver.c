@@ -9,7 +9,8 @@ void get_ver(void)
 {
     uint8_t  buffer[16];
     uint8_t i;
-    
+   
+//	delay_2();
 	if(cmd_status.get_version == 0)
 	{	
 		buffer[0] = 0x04;
@@ -20,7 +21,7 @@ void get_ver(void)
 		buffer[5] = 0x1A;
 		buffer[6] = 0x05;
 
-    iso14443send(buffer,7,ADDITIONAL_FRAME);
+        iso14443send(buffer,7,ADDITIONAL_FRAME);
 		
 		cmd_status.get_version = 1;
 	}

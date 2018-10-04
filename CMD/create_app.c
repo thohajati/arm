@@ -5,41 +5,53 @@
 #include "system_statusword.h"	
 #include "cmd.h"
 
-uint8_t i_temp = 0;
 
 void create_app(ISOAPDU * papdu_command)
 {
     uint16_t data_offset;
     uint16_t i;
     uint16_t resp;
-	uint8_t idx;
+  	uint8_t idx,z;
 
 
 	data_offset = 0;
 
 	i = 0;
 	
-	i_temp++;
-	if(i_temp == 2)
-		i_temp = 0;
+
 
    //check if current application number less than MAX_APP_NUM
-	while(i<MAX_APP_NUM)
-	{	
-		if ((app[i].AID[0] == 0) &&
-			(app[i].AID[1] == 0) &&
-			(app[i].AID[2] == 0))
-		{
-			idx = i;
-			i = MAX_APP_NUM + 1; //current application number less than MAX_APP_NUM
-		}
-		else
-		{
-			i++;
-			data_offset += sizeof(application);
-		}
+//	while(i<MAX_APP_NUM)
+//	{	
+//		if ((app[i].AID[0] == 0) &&
+//			(app[i].AID[1] == 0) &&
+//			(app[i].AID[2] == 0))
+//		{
+//			idx = i;
+//			i = MAX_APP_NUM + 1; //current application number less than MAX_APP_NUM
+//		}
+//		else
+//		{
+//			i++;
+//			data_offset += sizeof(application);
+//		}
 
-	}
+//	}
+		z = 0;
+			while(i<MAX_APP_NUM)
+		{	
+			z = (app[i].AID[0] == 0 & app[i].AID[1] == 0 & app[i].AID[2] == 0);
+			
+			if(z){
+				idx = i;
+				i = MAX_APP_NUM + 1; //current application number less than MAX_APP_NUM
+			}
+			else
+			{
+				i++;
+				data_offset += sizeof(application);								
+			}
+		}
 
 	if (i == MAX_APP_NUM)
 	{
@@ -61,21 +73,36 @@ void create_app(ISOAPDU * papdu_command)
 		else
 		{
 			i = 0;
-			while(i<MAX_APP_NUM)
-			{
-				
-				if ((app[i].AID[0] == papdu_command->papdudata[0]) &&
-					(app[i].AID[1] == papdu_command->papdudata[1]) &&
-					(app[i].AID[2] == papdu_command->papdudata[2]))
-				{
-					i = MAX_APP_NUM + 2; //DUPLICATE_ERROR
-				}
-				else
-				{
-					i++;
-				}
+//			while(i<MAX_APP_NUM)
+//			{
+//				
+//				if ((app[i].AID[0] == papdu_command->papdudata[0]) &&
+//					(app[i].AID[1] == papdu_command->papdudata[1]) &&
+//					(app[i].AID[2] == papdu_command->papdudata[2]))
+//				{
+//					i = MAX_APP_NUM + 2; //DUPLICATE_ERROR
+//				}
+//				else
+//				{
+//					i++;
+//				}
 
+//			}
+			z = 0;
+			while(i<MAX_APP_NUM)
+		{	
+			z = (app[i].AID[0] == papdu_command->papdudata[0]) & 
+			    (app[i].AID[1] == papdu_command->papdudata[1]) &	
+			    (app[i].AID[2] == papdu_command->papdudata[2]);
+			
+			if(z){
+				i = MAX_APP_NUM + 2; //DUPLICATE_ERROR
 			}
+			else
+			{
+				i++;					
+			}
+		}
 
 		}
 

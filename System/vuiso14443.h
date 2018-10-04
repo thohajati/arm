@@ -41,7 +41,7 @@ typedef struct {
   unsigned char write_data;	 
   unsigned char change_record;		 
   unsigned char change_value;
-	unsigned char prev_length;
+	unsigned char prev_length; 
 
 }command_status;
 

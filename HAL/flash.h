@@ -4,6 +4,7 @@
 #define SECTOR_SIZE 512
 #define ADDR_MIN 0x00006000
 
+//void flash_write_block(unsigned char * dest, unsigned char* source, unsigned short len);
 void flash_sector_erase(unsigned char* addr);
 void flash_sector_backup(unsigned char* addr);
 void flash_write(unsigned char* sector_addr, unsigned short addr_offset, unsigned char* data_buffer, unsigned short length);

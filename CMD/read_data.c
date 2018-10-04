@@ -17,9 +17,6 @@ void read_data(ISOAPDU * papdu_command)
     uint8_t  buffer_flash[256];//[60];
     uint8_t  buffer[256];
     uint8_t  tdes_init[8];
-	
-		//if((VDET & 0x40) != 0x40) //mode contactless
-//			papdu_command->pheader->INS = cmd_status.prev_command;
     
 	if(cmd_status.read_data == 0)
 	{					 
@@ -254,16 +251,3 @@ void read_data(ISOAPDU * papdu_command)
 	}
 
 }
-
-//void read_data(ISOAPDU * papdu_command) 
-//{
-//	
-//		if((VDET & 0x40) != 0x40){ //mode contactless
-//			cmd_status.prev_command = papdu_command->pheader->INS;			
-//			iso14443waitreq();
-//						
-//		}else{
-//			read_process(papdu_command);
-//		}      
-//	
-//}

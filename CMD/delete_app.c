@@ -7,11 +7,12 @@
 
 void delete_app(ISOAPDU * papdu_command) 
 {
-	uint16_t resp,data_offset,i;
+		uint16_t resp,data_offset,i;
     uint8_t  buffer_flash[60];
+		//uint8_t z = 0;
 
     data_offset = 0;	
-	i = 0;
+		i = 0;
 
 	//search application 
 	while(i<MAX_APP_NUM)
@@ -31,6 +32,24 @@ void delete_app(ISOAPDU * papdu_command)
 		}
 
 	}
+
+//		while(i<MAX_APP_NUM)
+//		{	
+//			z = (app[i].AID[0] ^ papdu_command->papdudata[0]) |
+//					(app[i].AID[1] ^ papdu_command->papdudata[1]) |
+//					(app[i].AID[2] ^ papdu_command->papdudata[2]);
+//			    
+//			
+//			if(!z){
+//				i = MAX_APP_NUM+1; //AID found
+//				app_idx = i;
+//			}
+//			else
+//			{
+//				i++;
+//				data_offset += sizeof(application);								
+//			}
+//		}
 
 	
 	if(i == MAX_APP_NUM+1)

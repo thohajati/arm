@@ -91,10 +91,10 @@ typedef struct {
 #define CYCLIC_RECORD_FILE         0x04
 
 extern application app[MAX_APP_NUM];        //at(0x6000)
-#define app_buff                  ((uint8_t*)0x00006000) //0x00012000)mode contact hang when reading address 0x6000 in cmd creat app (flash_sector_backup()))
+#define app_buff                  ((uint8_t*)0x00006000)
+//#define app_buff                  ((uint8_t*)0x00012000)
 #define master_key                ((uint8_t*)0x00008000)
 #define UID                       ((uint8_t*)0x00008e00)
-//uint8_t UID[7] =  {0x04, 0x2d, 0x4f, 0x21, 0xbd, 0x25, 0x80};
 #define master_key_setting        ((uint8_t*)0x00008F20)
 #define key_buff                  ((uint8_t*)0x00009000)
 #define file_buff                 ((uint8_t*)0x0000A000)
@@ -141,6 +141,5 @@ void iso_14443_aes_write_data(ISOAPDU * papdu_command);
 void iso_14443_aes_read_data(ISOAPDU * papdu_command, uint8_t* preaddata, uint16_t data_length);
 void iso_14443_change_key_aes_random(ISOAPDU * papdu_command);
 void write_process(ISOAPDU * papdu_command);
-void read_process(ISOAPDU * papdu_command);
 
 #endif

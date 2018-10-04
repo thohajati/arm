@@ -7,7 +7,8 @@
 #include "cmd.h"
 #include "reg.h"
 
-application  app[MAX_APP_NUM]		__attribute__((at(0x6000)));//0x00012000)));//_at_ 0x6000;
+application  app[MAX_APP_NUM]		__attribute__((at(0x6000)));//_at_ 0x6000;
+//application  app[MAX_APP_NUM]		__attribute__((at(0x12000)));
 //uint8_t code UID[7] =  {0x67, 0x2d, 0x4f, 0x21, 0xbd, 0x25, 0x80};
 
 
@@ -26,14 +27,18 @@ void master_key_format(void)
 	
 	for(i=0; i<16; i++)
     { 		 
-		 //NVM_CON |= 0x2;		 
+		 //FLASHX |= 0x2;		
+     NVM_CON |= 0x2;				
 		 master_key[i] = 0;		
-		 //NVM_CON &= 0xFD;
+		 //FLASHX &= 0xFD;	
+     NVM_CON &= 0xFD;	
     }	
 		 
-	//NVM_CON |= 0x2;	
+	//FLASHX |= 0x2;	
+     NVM_CON |= 0x2;		
 	master_key_setting[0] = 0x0F;	
-	//NVM_CON &= 0xFD;
+	//FLASHX &= 0xFD;
+     NVM_CON &= 0xFD;	
 }
 
 void firmware_init(ISOAPDU * apdu)
@@ -58,8 +63,8 @@ void firmware_init(ISOAPDU * apdu)
 void 
 firmware_response(ISOAPDU * papdu_command)
 {
-		firmware_init(papdu_command);
-	
+	firmware_init(papdu_command);
+
     switch(papdu_command->pheader->INS)
     {
         case CREATE_APPLICATION:
@@ -148,16 +153,15 @@ firmware_xirka_response(ISOAPDU * papdu_command)
 	if(papdu_command->pheader->INS == 0x02)
 			{	
 				//Chip Erase
-	   			NVM_CON |= 0x01;	  //Enable erase mode
+				 NVM_CON = 0x05;
+//	   			FLASHX = 0x05;	  //Enable erase mode
 	   			*(unsigned char*)0x5555 = 0x10;
-	   			NVM_CON &= 0xFE;
+//	   			FLASHX = 0x00;
+				 NVM_CON = 0x00;
 			}
 			if(papdu_command->pheader->INS == 0x03)
 			{
-//				cmd_status.prev_command = papdu_command->pheader->INS;
-//				iso14443waitreq();	
-				
-				if(((UID[6] == 0xFF) || (UID[6] == 0x00)) && (papdu_command->pheader->LEN<=8))
+				if(((UID[7] == 0xFF) || (UID[7] == 0x00)) && (papdu_command->pheader->LEN<=8))
 				{
 					flash_write(UID, 0, papdu_command->papdudata, papdu_command->pheader->LEN);
 				}				
@@ -187,7 +191,7 @@ void delay (void)
 void delay_2 (void)
 {
 	int z;
-		for(z=0; z<11; z++)
+		for(z=0; z<100; z++)
 			{
 				z=z+0;
 			}
@@ -196,8 +200,9 @@ void delay_2 (void)
 void delay_3 (void)
 {
 	int z;
-//		for(z=0; z<1; z++)
-//			{
-				z++;//=z+0;
-//			}
+		for(z=0; z<6; z++)
+			{
+				z=z+0;
+			}
 }
+

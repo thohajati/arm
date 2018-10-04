@@ -106,7 +106,7 @@ __Vectors       DCD     __initial_sp               ;     Top of Stack
                 DCD     FLASH_Handler              ;  15 Touch Screen interrupt
                 DCD     ISO_RX_Handler             ;  16 GPIO 2 combined interrupt
                 DCD     ISO_TX_Handler             ;  17 GPIO 3 combined interrupt
-                DCD     UART3RX_Handler            ;  18 UART 3 receive interrupt
+                DCD     ETU_Timer_Handler          ;  18 UART 3 receive interrupt
                 DCD     UART3TX_Handler            ;  19 UART 3 transmit interrupt
                 DCD     UART4RX_Handler            ;  20 UART 4 receive interrupt
                 DCD     UART4TX_Handler            ;  21 UART 4 transmit interrupt
@@ -180,7 +180,7 @@ Default_Handler PROC
                 EXPORT FLASH_Handler              [WEAK]
                 EXPORT ISO_RX_Handler             [WEAK]
                 EXPORT ISO_TX_Handler             [WEAK]
-                EXPORT UART3RX_Handler            [WEAK]
+                EXPORT ETU_Timer_Handler          [WEAK]
                 EXPORT UART3TX_Handler            [WEAK]
                 EXPORT UART4RX_Handler            [WEAK]
                 EXPORT UART4TX_Handler            [WEAK]
@@ -213,7 +213,7 @@ NFC_TX_Handler
 FLASH_Handler
 ISO_RX_Handler
 ISO_TX_Handler
-UART3RX_Handler
+ETU_Timer_Handler
 UART3TX_Handler
 UART4RX_Handler
 UART4TX_Handler

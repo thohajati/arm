@@ -81,7 +81,6 @@ authenticate_aes(ISOAPDU* papdu_command)
 					init_vector[i] = 0x00000000;				
 				
 				get_rand(16,randB_byte);			
-
 				
 				memcpy8to32(randB_AES,randB_byte,16);
 				memcpy8to32(key,key_byte,16);

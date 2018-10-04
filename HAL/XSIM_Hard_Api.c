@@ -2,6 +2,7 @@
 //#include "System_Dispatcher.h"
 #include "System_StatusWord.h"
 #include "reg.h"
+#include "firmware.h"
 
 /* Must be 2^y for modulo computation */
 #define RX_BUF_SIZE 256
@@ -24,23 +25,25 @@ __asm void FlashLoader_ASM(void)
 //Interrupt Init
 void Int_Init(void)
 {
-	if(((VDET & 0x00000040)!=0x00000040)) // init contacless
-  {
-    // Set remap off ...
-		*(unsigned int *) CMSDK_SYSCTRL_BASE = 0x00000001;
+//	if(((VDET & 0x00000040)!=0x00000040))
+//  {
+//    // Set remap off ...
+//		*(unsigned int *) CMSDK_SYSCTRL_BASE = 0x00000001;
+//		
+//	  __DSB();
+//    __ISB();
+//    FlashLoader_ASM();
+//  }
 		
-	  __DSB();
-    __ISB();
-    FlashLoader_ASM();
-  }
-		
-	  // Clear interrupt
-	NVM_INT = 1; // Clear Int flash
+	// Clear interrupt
+//	FLASHX &= 0xFB; //int flash
+		NVM_INT = 1; // Clear int flash
 	ISO_DONE = 0;   //ISO 7816 
-	CL_CON = 0;   //ISO 14443
+	CL_CON = 0x0;   //ISO 14443
 	
 	//*((volatile unsigned long *)(0xE000E100)) = 0x0003E100;//Enable interrupt #8, 13, 14, 15, 16, 17
 	*((volatile unsigned long *)(0xE000E100)) = 0x0002E100;//Enable interrupt #8, 13, 14, 15, 17
+	
 	// Sleep SLEEPDEEP
 	*(unsigned int*) 0xE000ED10 = 0x00000004;
 	
@@ -86,6 +89,7 @@ void IoInit(unsigned char FIDI)
 //************* ISO Data Send ***************
 void iso_tx(unsigned char tx_data)
 {
+//	delay_3();
 	// WFI  Test
 	do {
 	  ISO_DATA = tx_data;__WFI();
@@ -95,12 +99,20 @@ void iso_tx(unsigned char tx_data)
 //************* ISO Data Get *****************
 unsigned char iso_rx(void)
 {
+  while(ISO_DONE == 0);
+	ISO_DONE = 0;
+	
 	// WFI  Test
 	//__WFI();
 	
-	while(ISO_DONE == 0);
-	ISO_DONE = 0;
-	return(ISO_DATA);
+	/*
+	// WFE  Test
+	 DEBUG = 0;
+	 while(DEBUG==0){
+		 __WFE();
+	 }
+  */
+   return(ISO_DATA); 
 }
 
 void flash_wr(unsigned char *addr, unsigned char val)
@@ -147,9 +159,9 @@ void get_rand(unsigned char len, unsigned char* rand)
 	
 					//Enable TRG Clock
 				CLKCON |= 0x04;
-				
+					
 				RAND_DATA = seed;
-				RAND_CTRL |= 0x01;
+				RAND_CTRL = 0x01;
 				while ((RAND_CTRL & 0x02) == 0x00);
 			
 				for(i=0; i<len; i++)
@@ -195,20 +207,21 @@ vucalc_crc(unsigned char * pdatain,
 	int i;
 	
 	CLKCON |= 0x20;
-	
 	CRC_MODE = 0x1;
   CRC_INIT = 0x1;
 	CRC_DATA = 0x6363;
 	
 	CRC_INIT = 0x0;
+//	FLASHX = 0xF0;	
 	
 	for(i=0; i<len; i++){
+//		FLASHX = i<<4;
 	  CRC_DATA = *(pdatain+i);
 	}
  
 	*pcrcmsb = (unsigned char) (CRC_DATA>>8);
 	*pcrclsb  = (unsigned char) CRC_DATA;
-	
+	 
 	CLKCON &= 0xDF;
 
 //	ComputeCrc(pdatain, len, pcrclsb, pcrcmsb);	
@@ -224,10 +237,11 @@ char xstsm212_verify_crc(unsigned char* datain, unsigned int dinlen)
 	CRC_DATA = 0x6363;
 	
 	CRC_INIT = 0x0;		
-
+//	FLASHX = 0xF0;
     
     //Calculate crc
     for (i=0; i<dinlen; i++){
+//			FLASHX = i<<4;
 	    CRC_DATA = datain[i];    	
     }
     
@@ -313,11 +327,12 @@ void ISO_TX_Handler(void)
 
 void FLASH_Handler(void)
 { 
-	NVM_INT = 1; // Clear int flash
+//	FLASHX &= 0xFB;
+	NVM_INT &= 1; // Clear int flash
 }
 
-void TIMER0_Handler(void)
-{
+void ETU_Timer_Handler(void)
+{ 
 }
 
 void NFC_RX_Handler(void)

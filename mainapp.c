@@ -15,8 +15,6 @@ int system_dispatcher(ISOAPDU  *pisoapdu);
 int main()
 {      
     //uint16_t   rxlen;
-	
-		// Enable clock Interface
 		CLKCON |= 0x02;
 	
 		Int_Init();
@@ -32,15 +30,15 @@ int main()
 			  HAL_Init();
 			  System_SendATR();
 				System_Dispatcher();
-			
 		}else{
+	 // Enable clock Interface
 
 			while(1){
-				iso14443receive(&isoapdu);
-				system_dispatcher(&isoapdu);
+					iso14443receive(&isoapdu);
+					system_dispatcher(&isoapdu);
 			
 			}
-		}
+	}
 }
 
 int system_dispatcher(ISOAPDU  *pisoapdu)

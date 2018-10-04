@@ -44,7 +44,7 @@ unsigned long update_crc(unsigned long crcinit, unsigned char *buf, unsigned cha
 	int n;
 
 			//Enable CRC Clock
-     CLKCON |= 0x20;
+    CLKCON |= 0x20;
 			
 			CRC_MODE = 0x3;
       CRC_INIT = 0x1;

@@ -13,9 +13,6 @@ uint16_t resp,i,j,data_offset,data_length,file_addr;
 uint16_t data_cntr = 0;
 uint8_t buffer_flash[256];//[60];
 uint8_t  tdes_init[8];
-
-//if((VDET & 0x40) != 0x40) //mode contactless
-//	papdu_command->pheader->INS = cmd_status.prev_command;
 	
 if(cmd_status.write_data == 0)
 	{
@@ -275,9 +272,10 @@ if(cmd_status.write_data == 0)
 //{
 //	
 //		if((VDET & 0x40) != 0x40){ //mode contactless
-//			cmd_status.prev_command = papdu_command->pheader->INS;			
+//			
 //			iso14443waitreq();
-//						
+//			cmd_status.prev_command = papdu_command->pheader->INS;
+//			
 //		}else{
 //			write_process(papdu_command);
 //		}      

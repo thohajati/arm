@@ -64,10 +64,13 @@ size of a frame the PCD is able to receive */
 #define TC1_ENABLE                  0x40
 
 #define DIR							0x00
-#define	DIVISOR_SEND				0x00//0x30  //0x70  //original	   0x30//desfire
-#define	DIVISOR_RECEIVE				0x00//0x03  //0x07  //original	   0x03//desfire
+#define	DIVISOR_SEND				0x00  //0x70  //original	   0x30//desfire
+#define	DIVISOR_RECEIVE				0x00  //0x07  //original	   0x03//desfire
+//#define	DIVISOR_SEND				0x30
+//#define	DIVISOR_RECEIVE				0x30
 
 #define FWI							0x80  ///*0xE0*/0x80	  //default 0x40		 0x80//desfire
+//#define FWI							0x92
 #define	SFGI						0x01  ///*0x0E*/0x01	  //default 0x00		 0x01//desfire
 
 #define NAD_NOT_SUPPORTED			0x00
@@ -101,13 +104,11 @@ static uint16_t  datalen;
 uint8_t  backupbuff[SECTOR_SIZE];
 command_status  cmd_status;
 uint8_t read_all_flag;
-unsigned char f_coll = 0;
 
 extern ISOAPDU  isoapdu;
 extern uint8_t iblock_cnt;
 
 BLOCK block;
-PISOAPDU papdu_command = &isoapdu;
 
 void 
 vuiso14443_init(void)
@@ -128,12 +129,8 @@ vuiso14443_init(void)
 
 void vutransmit(uint8_t length) //byte&bit transmit
 {
-	if(f_coll){
-		CL_SIZE |= length;
-		f_coll = 0;
-	}else{
+//	CLKCFG &= 0x1F; 
 	CL_SIZE = length;
-	}
 	
 	CL_CON = 0x3;
   //while ((CL_CON & 0x4) == 0x00);
@@ -156,76 +153,77 @@ static void vureceive(uint16_t * outputlen)//byte&bit receive
 }
 
 
-static void 
-anticoll_lev1(uint8_t * pbuff, uint8_t idxbytecoll, uint8_t idxbitcoll){
-	uint8_t idxbcc,idxuidcoll,i;//,bcc;
+//static void 
+//anticoll1(uint8_t * pbuff, uint8_t idxbytecoll, uint8_t idxbitcoll){
+//	uint8_t idxbcc,idxuidcoll,i;//,bcc;
 
-	switch(idxbytecoll){
-		case 1: idxbcc = 4; break;
-		case 2: idxbcc = 3; break;
-		case 3: idxbcc = 2; break;
-		case 4: idxbcc = 1; break;
-	}
-	//pbuff[idxbcc-1] = 0x00; //init bcc
-    pbuff[idxbcc-1] = CTAG;
-	
-    if(idxbytecoll < 4){
-        idxuidcoll = idxbytecoll - 1;
-        pbuff[0] = UID[idxuidcoll] >> idxbitcoll;
-    }
+//	switch(idxbytecoll){
+//		case 1: idxbcc = 4; break;
+//		case 2: idxbcc = 3; break;
+//		case 3: idxbcc = 2; break;
+//		case 4: idxbcc = 1; break;
+//	}
+//	//pbuff[idxbcc-1] = 0x00; //init bcc
+//    pbuff[idxbcc-1] = CTAG;
+//	
+//    if(idxbytecoll < 4){
+//        idxuidcoll = idxbytecoll - 1;
+//        pbuff[0] = UID[idxuidcoll] >> idxbitcoll;
+//    }
 
-    
-    if(idxbcc > 1){
-        for(i=1;i<idxbcc-1;i++)
-            pbuff[i] = UID[idxuidcoll+i];
-    }
-    
-   	for(i=0;i<3;i++)
-		pbuff[idxbcc-1] ^= UID[i];
-    
-	//bcc=pbuff[idxbcc-1];
-    vutransmit(idxbcc);    
+//    
+//    if(idxbcc > 1){
+//        for(i=1;i<idxbcc-1;i++)
+//            pbuff[i] = UID[idxuidcoll+i];
+//    }
+//    
+//   	for(i=0;i<3;i++)
+//		pbuff[idxbcc-1] ^= UID[i];
+//    
+//	//bcc=pbuff[idxbcc-1];
+//    vutransmit(idxbcc);    
 
-} 
+//} 
  
-static void 
-anticoll_lev2(uint8_t * pbuff, uint8_t idxbytecoll, uint8_t idxbitcoll){
-	uint8_t idxbcc,idxuidcoll,i;//,bcc;
+//static void 
+//anticoll2(uint8_t * pbuff, uint8_t idxbytecoll, uint8_t idxbitcoll){
+//	uint8_t idxbcc,idxuidcoll,i;//,bcc;
 
-	switch (idxbytecoll){
-		case 4: idxbcc = 5; break;
-		case 5: idxbcc = 4; break;
-		case 6: idxbcc = 3; break;
-		case 7: idxbcc = 2; break;
-		case 8: idxbcc = 1; break;
-	}
-	//pbuff[idxbcc-1] = 0x00; //init bcc
-	
-    if(idxbytecoll < 8){
-        idxuidcoll = idxbytecoll - 1;
-        pbuff[0] = UID[idxuidcoll] >> idxbitcoll;
-    }
-    
-    if(idxbcc > 1){
-        for(i=1;i<idxbcc-1;i++)
-            pbuff[i] = UID[idxuidcoll+i];
-    }
-	
-    pbuff[idxbcc-1] = 0x00; //init bcc
-   	for(i=0;i<4;i++)
-		pbuff[idxbcc-1] ^= UID[i+3];
-    
-	//bcc=pbuff[idxbcc-1];
-    vutransmit(idxbcc); 
-    
+//	switch (idxbytecoll){
+//		case 4: idxbcc = 5; break;
+//		case 5: idxbcc = 4; break;
+//		case 6: idxbcc = 3; break;
+//		case 7: idxbcc = 2; break;
+//		case 8: idxbcc = 1; break;
+//	}
+//	//pbuff[idxbcc-1] = 0x00; //init bcc
+//	
+//    if(idxbytecoll < 8){
+//        idxuidcoll = idxbytecoll - 1;
+//        pbuff[0] = UID[idxuidcoll] >> idxbitcoll;
+//    }
+//    
+//    if(idxbcc > 1){
+//        for(i=1;i<idxbcc-1;i++)
+//            pbuff[i] = UID[idxuidcoll+i];
+//    }
+//	
+//    pbuff[idxbcc-1] = 0x00; //init bcc
+//   	for(i=0;i<4;i++)
+//		pbuff[idxbcc-1] ^= UID[i+3];
+//    
+//	//bcc=pbuff[idxbcc-1];
+//    vutransmit(idxbcc); 
+//    
 
-}
-
+//}
 
 static uint8_t iso14443_3_handler(uint8_t * pbuff)
 {
-		uint8_t idxbytecoll,idxbitcoll,idxuidcoll,res,i,plus;//bcc1,bcc,bytecoll,realbytecoll,bitcoll,bitcheck;
+		uint8_t /*bcc,bcc1,*/i,/*idxbytecoll,idxbitcoll,idxuidcoll,*/res;//,plus;//bytecoll,realbytecoll,bitcoll,bitcheck;
     uint8_t command = pbuff[0];
+	
+//		CLKCFG |= 0xE0; 
 
     switch(isostate)
 		{
@@ -275,23 +273,22 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
                    NOTE: The 2 byte CRC data should be inverted ( Annex B in ISO 14443-3)
                  */
 
-								/* handling ketika ada 2 picc ditempel tapi reader tidak mengirim 93 XX */
-										res = 0;
-										for(i=0;i<3;i++){
-										if(pbuff[i+3] != UID[i])
-											res = 1;
-										}
-										
-										if(res == 0){
-											pbuff[0] = 0x24;   
-										//pbuff[0] = SAK_NOT_COMPLETE;//thomi	When b3 is set to 1, all other bits of SAK should be set to 0 [refer to 14443-3]
-											vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);					
-											vutransmit(3);
-											return PROTO14443_3_CONT;
-										}else{
-											isostate = ISO_STATE_HALT;
-											return PROTO14443_3_CONT;
-										}
+				 /* handling ketika ada 2 picc ditempel tapi reader tidak mengirim 93 XX */
+						res = 0;
+				    for(i=0;i<3;i++){
+						if(pbuff[i+3] != UID[i])
+							res = 1;
+						}
+					if(res == 0){
+                    	pbuff[0] = 0x24;   
+						//pbuff[0] = SAK_NOT_COMPLETE;//thomi	When b3 is set to 1, all other bits of SAK should be set to 0 [refer to 14443-3]
+                    	vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);					
+						vutransmit(3);
+                    	return PROTO14443_3_CONT;
+					}else{
+						  isostate = ISO_STATE_HALT;
+                          return PROTO14443_3_CONT;
+					}
                    
                 }
 
@@ -303,42 +300,39 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
                      *     0x03 -> value 2 bit dari UID yg dipilih  
                      */
 
-					  idxbytecoll = (pbuff[1] >> 4) - 2;
-					  idxbitcoll = pbuff[1] % 8;
+//					  idxbytecoll = (pbuff[1] >> 4) - 2;
+//					  idxbitcoll = pbuff[1] % 8;
 
-					  if(idxbytecoll > 0){
-					  	idxuidcoll = idxbytecoll - 1;
-						  if(idxbitcoll > 0){
-					  	    res = ((UID[idxuidcoll] << (8-idxbitcoll)) & 0xFF) >> (8-idxbitcoll);
-					      }else{
-						    res = UID[idxbytecoll];
-						  }
-					  }else{
-					  	res = ((CTAG << (8-idxbitcoll)) & 0xFF) >> (8-idxbitcoll);;
-					  }
+//					  if(idxbytecoll > 0){
+//					  	idxuidcoll = idxbytecoll - 1;
+//						  if(idxbitcoll > 0){
+//					  	    res = ((UID[idxuidcoll] << (8-idxbitcoll)) & 0xFF) >> (8-idxbitcoll);
+//					      }else{
+//						    res = UID[idxbytecoll];
+//						  }
+//					  }else{
+//					  	res = ((CTAG << (8-idxbitcoll)) & 0xFF) >> (8-idxbitcoll);;
+//					  }
 
-					  if(idxbitcoll > 0){
-					  	plus = pbuff[idxbytecoll+2];
-					  }else{
-					  	plus = UID[idxbytecoll];
-					  }
-					  
-					  if(res == plus){  // this UID is selected
-								f_coll = 1;
-					  		//TX_ADDR_BIT = (8-idxbitcoll);
-							  CL_SIZE = (8-idxbitcoll)<<8; 
-                            
-                anticoll_lev1(pbuff, idxbytecoll, idxbitcoll); 
-						
-						    //TX_ADDR_BIT=0x00;
-							  CL_SIZE = 0x00 << 8;
-                flag=1;
-                return PROTO14443_3_CONT;
+//					  if(idxbitcoll > 0){
+//					  	plus = pbuff[idxbytecoll+2];
+//					  }else{
+//					  	plus = UID[idxbytecoll];
+//					  }
+//					  
+//					  if(res == plus){  // this UID is selected
+//					  		TX_ADDR_BIT = (8-idxbitcoll);
+//                            
+//                            anticoll1(pbuff, idxbytecoll, idxbitcoll); 
+//						
+//						    TX_ADDR_BIT=0x00;
+//                      		flag=1;
+//                      		return PROTO14443_3_CONT;
 
-					  }else{
-					      isostate = ISO_STATE_HALT;
-                return PROTO14443_3_CONT; 
-					  }
+//					  }else{
+//					      isostate = ISO_STATE_HALT;
+//                          return PROTO14443_3_CONT; 
+//					  }
 
 		
 				}
@@ -392,42 +386,39 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
                      *     0x03 -> value 2 bit dari UID yg dipilih  
                      */
 
-					  idxbytecoll = (pbuff[1] >> 4) + 2;
-					  idxbitcoll = pbuff[1] % 8;
+//					  idxbytecoll = (pbuff[1] >> 4) + 2;
+//					  idxbitcoll = pbuff[1] % 8;
 
-					  if(idxbytecoll > 0){
-					  	idxuidcoll = idxbytecoll - 1;
-						  if(idxbitcoll > 0){
-					  	    res = ((UID[idxuidcoll] << (8-idxbitcoll)) & 0xFF) >> (8-idxbitcoll);
-					      }else{
-						    res = UID[idxbytecoll];
-						  }
-					  }else{
-					  	res = ((CTAG << (8-idxbitcoll)) & 0xFF) >> (8-idxbitcoll);;
-					  }
+//					  if(idxbytecoll > 0){
+//					  	idxuidcoll = idxbytecoll - 1;
+//						  if(idxbitcoll > 0){
+//					  	    res = ((UID[idxuidcoll] << (8-idxbitcoll)) & 0xFF) >> (8-idxbitcoll);
+//					      }else{
+//						    res = UID[idxbytecoll];
+//						  }
+//					  }else{
+//					  	res = ((CTAG << (8-idxbitcoll)) & 0xFF) >> (8-idxbitcoll);;
+//					  }
 
-					  if(idxbitcoll > 0){
-					  	plus = pbuff[idxbytecoll-2];
-					  }else{
-					  	plus = UID[idxbytecoll];
-					  }
-					  
-					  if(res == plus){  // this UID is selected
-					  		//TX_ADDR_BIT = (8-idxbitcoll);
-								f_coll = 1;
-								CL_SIZE = (8-idxbitcoll)<<8;
-                            
-                anticoll_lev2(pbuff, idxbytecoll, idxbitcoll); 
-						
-						    //TX_ADDR_BIT=0x00;
-								CL_SIZE = 0<<8;
-                flag=1;
-                return PROTO14443_3_CONT;
+//					  if(idxbitcoll > 0){
+//					  	plus = pbuff[idxbytecoll-2];
+//					  }else{
+//					  	plus = UID[idxbytecoll];
+//					  }
+//					  
+//					  if(res == plus){  // this UID is selected
+//					  		TX_ADDR_BIT = (8-idxbitcoll);
+//                            
+//                            anticoll2(pbuff, idxbytecoll, idxbitcoll); 
+//						
+//						    TX_ADDR_BIT=0x00;
+//                      		flag=1;
+//                      		return PROTO14443_3_CONT;
 
-					  }else{
-					      isostate = ISO_STATE_HALT;
-                          return PROTO14443_3_CONT; 
-					  }
+//					  }else{
+//					      isostate = ISO_STATE_HALT;
+//                          return PROTO14443_3_CONT; 
+//					  }
                     
          }
             }
@@ -501,6 +492,7 @@ static uint8_t iso14443_4_handler(uint8_t * pbuff)
     uint8_t  cmd;
     uint8_t  blocknum;
     uint16_t resp;
+	const unsigned char masterkeyval[1] = {0x0F};
 
     cmd = pbuff[0] & 0xFE;
     blocknum = pbuff[0] & 0x01;
@@ -524,13 +516,13 @@ static uint8_t iso14443_4_handler(uint8_t * pbuff)
 		case RATS:
             /* Hardcoded the ATS command */
             pbuff[0] = TLENGTH;
-			pbuff[1] = T0;
+						pbuff[1] = T0;
             pbuff[2] = TA1;
             pbuff[3] = TB1;
             pbuff[4] = TC1;
             pbuff[5] = HISTORICAL_BYTE;
-			vucalc_crc(NFC_BUFFER, &NFC_BUFFER[7], &NFC_BUFFER[6], 6);
-			flag=2;
+						vucalc_crc(NFC_BUFFER, &NFC_BUFFER[7], &NFC_BUFFER[6], 6);
+						flag=2;
             vutransmit(8);
         break;
 
@@ -571,44 +563,27 @@ static uint8_t iso14443_4_handler(uint8_t * pbuff)
         case SBLOCK_WTS:
 		{
 			
-			switch(cmd_status.prev_command)
-			{
+			switch(cmd_status.prev_command){
 				case FORMAT_PICC:
+				
 					flash_format(app_buff, SIZE_APP_BUFF);
 					flash_format(file_buff, SIZE_FILE_BUFF);
 					flash_format(key_buff, SIZE_KEY_BUFF); 
 					flash_format(master_key, SIZE_MASTER_KEY_BUFF);
-					flash_byte_set(master_key_setting, 0x0F);
+//						flash_byte_set(master_key_setting, 0x0F);
+			    flash_write(master_key_setting,0, (unsigned char*)masterkeyval, 1);
 			
-					NFC_BUFFER[0] = cmd_status.prev_block;
-					
-          resp = (DESFIRE_SW1<<8)|OPERATION_OK;
-          iso14443sendresp(resp);
-					break;
+							NFC_BUFFER[0] = cmd_status.prev_block;
+						
+									resp = (DESFIRE_SW1<<8)|OPERATION_OK;
+									iso14443sendresp(resp);
+				break;
 				
-//				case WRITE_DATA:
-//					NFC_BUFFER[0] = cmd_status.prev_block;					
-//					write_process(&isoapdu);
-//					break;
-//				
-//				case READ_DATA:
-//					NFC_BUFFER[0] = cmd_status.prev_block;					
-//					read_process(&isoapdu);
-//					break;
-				
-//				case 0x03:
-//					if(((UID[6] == 0xFF) || (UID[6] == 0x00)) && (cmd_status.prev_length<=8))
-//					{
-//						flash_write(UID, 0, papdu_command->papdudata, cmd_status.prev_length);
-//					}
-//					NFC_BUFFER[0] = cmd_status.prev_block;					
-//					iso14443sendresp(0x9000);
-//					break;
+				case WRITE_DATA:	
+//					write_process(&isoapdu);            
+				break;
+			
 			}
-					
-            
-			break;
-			
 		}
         
         case DESELECT:
@@ -717,7 +692,7 @@ iso14443send(uint8_t * payload, uint16_t len, uint8_t status)
 
 	
 	if((VDET & 0x40)==0x40){ // mode contact
-
+		
 		LRC= block.NAD^block.PCB;
 		
 		iso_tx(block.NAD);
@@ -811,7 +786,7 @@ iso14443waitreq(){
 		cmd_status.prev_block = NFC_BUFFER[0];
 	
 		NFC_BUFFER[0] = 0xF2;
-		NFC_BUFFER[1] = 0x3F;
+		NFC_BUFFER[1] = 0x3B;
 	
 		vucalc_crc(NFC_BUFFER, &NFC_BUFFER[3], &NFC_BUFFER[2], 2);
 	

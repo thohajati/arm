@@ -13,6 +13,7 @@
 #include "System_Dispatcher.h"
 
 extern BLOCK block;
+extern unsigned char f_pps;
 
 void init()
 {
@@ -33,16 +34,30 @@ void init()
 int RecvBlockFrame(PBLOCK pblock)
 {
 	unsigned char i;
-
-	pblock->NAD = iso_rx();
-	pblock->PCB = iso_rx(); 
-	pblock->LEN = iso_rx(); 
-
-	for(i=0; i<pblock->LEN; i++)
-		pblock->INF[i] = iso_rx();
-		
-  pblock->LRC = iso_rx();	//lrc	
 	
+	if(f_pps == 1){ // reader send PPS
+
+		pblock->NAD = iso_rx();
+		pblock->PCB = iso_rx(); 
+		pblock->LEN = iso_rx(); 
+	
+		for(i=0; i<pblock->LEN; i++)
+			pblock->INF[i] = iso_rx();
+			
+		pblock->LRC = iso_rx();	//lrc	
+	
+	}else{
+		pblock->PCB = iso_rx(); 
+		pblock->LEN = iso_rx(); 
+	
+		for(i=0; i<pblock->LEN; i++)
+			pblock->INF[i] = iso_rx();
+			
+		pblock->LRC = iso_rx();	//lrc	
+		
+		f_pps = 1;
+	}
+
 	return 0;
 
 }
@@ -60,6 +75,7 @@ int BlockHandler(PBLOCK pblock)
 	tblock = pblock->PCB & 0xC0;
 	inst = pblock->PCB & 0x3F;
 	
+//	delay_2();
 	if(tblock == SBLOCK_HEADER) 
 	{
 		if(inst == IFS_REQ)
@@ -120,13 +136,16 @@ int BlockHandler(PBLOCK pblock)
 			if(apdu.pheader->INS == 0x02)
 			{	
 				//Chip Erase
-	   			NVM_CON |= 0x01;	  //Enable erase mode
+				NVM_CON = 0x05;
+//	   			FLASHX = 0x05;	  //Enable erase mode
 	   			flash_wr((unsigned char*)0x5555, 0x10);
-	   			NVM_CON &= 0xFE;
+//	   			FLASHX = 0x00;
+				NVM_CON = 0x00;
 			}
-			if(apdu.pheader->INS == 0x03)
+			if(apdu.pheader->INS == 0x03) 
 			{
-				if(((UID[6] == 0xFF) || (UID[6] == 0x00)) && (apdu.pheader->LEN<=8))
+//				if(((UID[7] == 0xFF) || (UID[7] == 0x00)) && (apdu.pheader->LEN<=8))
+				if(((UID[6] == 0xFF) || (UID[6] == 0x00)) && (apdu.pheader->LEN<=8))//thomi edit
 				{
 					flash_write(UID, 0, apdu.papdudata, apdu.pheader->LEN);
 				}				
