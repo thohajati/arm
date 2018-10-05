@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define></Define>
               <Undefine></Undefine>
-              <IncludePath>.\cmsis\CMSIS\Include;.\cmsis\Device\ARM\CMSDK_CM0\Include;.\retarget;..\arm-anticoll - dualifc;.\CMD;.\System;.\HAL</IncludePath>
+              <IncludePath>.\cmsis\CMSIS\Include;.\cmsis\Device\ARM\CMSDK_CM0\Include;.\retarget;.\CMD;.\System;.\HAL</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
