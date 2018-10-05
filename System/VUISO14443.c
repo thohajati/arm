@@ -561,7 +561,7 @@ static uint8_t iso14443_4_handler(uint8_t * pbuff)
         break;
         
         case SBLOCK_WTS:
-		{
+		
 			
 			switch(cmd_status.prev_command){
 				case FORMAT_PICC:
@@ -584,7 +584,7 @@ static uint8_t iso14443_4_handler(uint8_t * pbuff)
 				break;
 			
 			}
-		}
+		    break;
         
         case DESELECT:
             vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);
@@ -641,33 +641,33 @@ iso7816send(uint8_t * payload, uint16_t len, uint8_t status)
 {
   uint16_t cnt;
 	uint8_t sw1,sw2;
-	uint8_t LRC;
+//	uint8_t LRC;
 
-	
-	if((VDET & 0x40)==0x40){ //mode contact
-	
-		LRC= block.NAD^block.PCB;
-		
-		iso_tx(block.NAD);
-		iso_tx(block.PCB);
-	
-		LRC ^= len+2;
-	
-		iso_tx(len+2);
-		for(cnt=0;cnt<len;cnt++)
-		{
-			iso_tx(payload[cnt]);
-			LRC ^= payload[cnt]; 
-		}  
-	
-		iso_tx(0x90);
-		iso_tx(status);
-	
-		LRC ^= (0x90 ^ status);
-	
-		iso_tx(LRC);
-		
-	}else{
+//	
+//	if((VDET & 0x40)==0x40){ //mode contact
+//	
+//		LRC= block.NAD^block.PCB;
+//		
+//		iso_tx(block.NAD);
+//		iso_tx(block.PCB);
+//	
+//		LRC ^= len+2;
+//	
+//		iso_tx(len+2);
+//		for(cnt=0;cnt<len;cnt++)
+//		{
+//			iso_tx(payload[cnt]);
+//			LRC ^= payload[cnt]; 
+//		}  
+//	
+//		iso_tx(0x90);
+//		iso_tx(status);
+//	
+//		LRC ^= (0x90 ^ status);
+//	
+//		iso_tx(LRC);
+//		
+//	}else{
 
     for(cnt=0;cnt<len;cnt++)
 		{
@@ -680,41 +680,41 @@ iso7816send(uint8_t * payload, uint16_t len, uint8_t status)
     NFC_BUFFER[len+2]=sw2;
     vucalc_crc(NFC_BUFFER, &NFC_BUFFER[len+4], &NFC_BUFFER[len+3], len+3);
     vutransmit(len+5);
-	}
+//	}
 }
 
 void
 iso14443send(uint8_t * payload, uint16_t len, uint8_t status)
 {
   uint16_t cnt;
-	uint8_t LRC;
+//	uint8_t LRC;
 	uint8_t sw1,sw2;
 
-	
-	if((VDET & 0x40)==0x40){ // mode contact
-		
-		LRC= block.NAD^block.PCB;
-		
-		iso_tx(block.NAD);
-		iso_tx(block.PCB);
-	
-		LRC ^= len+2;
-	
-		iso_tx(len+2);
-		for(cnt=0;cnt<len;cnt++)
-		{
-					iso_tx(payload[cnt]);
-			LRC ^= payload[cnt]; 
-		}  
-	
-		iso_tx(DESFIRE_SW1);
-		iso_tx(status);
-	
-		LRC ^= (DESFIRE_SW1 ^ status);
-	
-		iso_tx(LRC);
-			
-	}else{
+//	
+//	if((VDET & 0x40)==0x40){ // mode contact
+//		
+//		LRC= block.NAD^block.PCB;
+//		
+//		iso_tx(block.NAD);
+//		iso_tx(block.PCB);
+//	
+//		LRC ^= len+2;
+//	
+//		iso_tx(len+2);
+//		for(cnt=0;cnt<len;cnt++)
+//		{
+//					iso_tx(payload[cnt]);
+//			LRC ^= payload[cnt]; 
+//		}  
+//	
+//		iso_tx(DESFIRE_SW1);
+//		iso_tx(status);
+//	
+//		LRC ^= (DESFIRE_SW1 ^ status);
+//	
+//		iso_tx(LRC);
+//			
+//	}else{
     
     for(cnt=0;cnt<len;cnt++)
 		{
@@ -727,61 +727,61 @@ iso14443send(uint8_t * payload, uint16_t len, uint8_t status)
     NFC_BUFFER[len+2]=sw2;
     vucalc_crc(NFC_BUFFER, &NFC_BUFFER[len+4], &NFC_BUFFER[len+3], len+3);
     vutransmit(len+5);
-	}
+//	}
 }
 
 void
 iso14443sendresp(uint16_t resp){
-	uint8_t LRC; 
-	
-	if((VDET & 0x40) == 0x40){ //mode contact
+//	uint8_t LRC; 
+//	
+//	if((VDET & 0x40) == 0x40){ //mode contact
 
-		LRC= block.NAD^block.PCB;
-		
-		iso_tx(block.NAD);
-		iso_tx(block.PCB);
-	
-		LRC ^= 0x2; //len status
-		LRC ^= resp >> 8;
-		LRC ^= resp & 0xFF;
-	
-		iso_tx(0x2);
-		iso_tx(resp >> 8);
-		iso_tx(resp & 0xFF);
-		iso_tx(LRC);
-		
-	}else{
+//		LRC= block.NAD^block.PCB;
+//		
+//		iso_tx(block.NAD);
+//		iso_tx(block.PCB);
+//	
+//		LRC ^= 0x2; //len status
+//		LRC ^= resp >> 8;
+//		LRC ^= resp & 0xFF;
+//	
+//		iso_tx(0x2);
+//		iso_tx(resp >> 8);
+//		iso_tx(resp & 0xFF);
+//		iso_tx(LRC);
+//		
+//	}else{
 			
     NFC_BUFFER[1] = (resp >> 8);
     NFC_BUFFER[2] = resp & 0xFF;
     vucalc_crc(NFC_BUFFER, &NFC_BUFFER[4], &NFC_BUFFER[3], 3);
     vutransmit(5);    
-	}
+//	}
 }
 
 void
 iso14443waitreq(){
-	uint8_t LRC, i;
-	
-	if((VDET & 0x40) == 0x40){ //mode contact
- 
-		uint8_t  buff[8]; 
-									
-		buff[0]= block.NAD;
-		buff[1]= 0xC3;
-		buff[2]= 0x01;
-		buff[3]= 0x9F;
-	
-		LRC = 0;
-		for(i=0;i<4;i++) {
-			LRC ^= buff[i];
-		}
-		buff[4]= LRC;
-		for(i=0;i<5;i++) {
-			iso_tx(buff[i]);
-		}
-		
-	}else{
+//	uint8_t LRC, i;
+//	
+//	if((VDET & 0x40) == 0x40){ //mode contact
+// 
+//		uint8_t  buff[8]; 
+//									
+//		buff[0]= block.NAD;
+//		buff[1]= 0xC3;
+//		buff[2]= 0x01;
+//		buff[3]= 0x9F;
+//	
+//		LRC = 0;
+//		for(i=0;i<4;i++) {
+//			LRC ^= buff[i];
+//		}
+//		buff[4]= LRC;
+//		for(i=0;i<5;i++) {
+//			iso_tx(buff[i]);
+//		}
+//		
+//	}else{
 		
 		cmd_status.prev_block = NFC_BUFFER[0];
 	
@@ -791,7 +791,7 @@ iso14443waitreq(){
 		vucalc_crc(NFC_BUFFER, &NFC_BUFFER[3], &NFC_BUFFER[2], 2);
 	
 		vutransmit(4);
-	}
+//	}
     
 }
 
