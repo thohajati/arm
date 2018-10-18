@@ -154,7 +154,7 @@ void flash_write(unsigned char *sector_addr,
 	flash_sector_erase(sector_addr);
 	
 	if(addr_offset > 0){
-		if(addr_offset < 256){
+		if(addr_offset <= 256){
 	
 //	  for(i=0; i<addr_offset; i++)
 //			flash_write_byte(sector_addr+i, backupbuff[i]);
@@ -183,7 +183,7 @@ void flash_write(unsigned char *sector_addr,
 //	}
 	
   if(addr_offset+length != 0x1FF){	
-		if((SECTOR_SIZE-addr_offset-length)<256){
+		if((addr_offset+length)>256){
 			flash_write_block(sector_addr+addr_offset+length, backupbuff+addr_offset+length,SECTOR_SIZE-addr_offset-length);
 			
 		}		

@@ -10,7 +10,7 @@
 void format_picc(ISOAPDU * papdu_command) 
 {
     uint16_t resp;
-//		const unsigned char masterkeyval[1] = {0x0F};
+		const unsigned char masterkeyval[1] = {0x0F};
 
 	if(cmd_status.authentication == 2)
 	{

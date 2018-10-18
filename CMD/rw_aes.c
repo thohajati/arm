@@ -181,14 +181,14 @@ iso_14443_aes_write_data(ISOAPDU * papdu_command)
 		vuaes_cmac(&aes);
 		
 		memcpy32to8(buffer,cipher,8);
+				
+		//update IV
+		memcpy8to32(init_vector,buffer,16);
         
       resp = (DESFIRE_SW1<<8) | OPERATION_OK;
         
-			iso14443send(buffer,8,resp);
-		    
-		
-		//update IV
-		memcpy8to32(init_vector,buffer,16);
+			iso14443send(buffer,8,resp);	    
+
 	
 	}
 }
@@ -253,15 +253,16 @@ iso_14443_aes_read_data(ISOAPDU * papdu_command, uint8_t* preaddata, uint16_t da
 	vuaes_process(&aes);
 	
 	memcpy32to8(&buffer[1],cipher,data_length/4);
+		/* update IV
+	   rest 16 bytes response data
+	*/
+	memcpy8to32(init_vector, &buffer[data_length + 1 - 16],16);
 	
     resp = (DESFIRE_SW1<<8) | OPERATION_OK;
 		iso14443send(&buffer[1],data_length, resp);    
 
 	
 
-	/* update IV
-	   rest 16 bytes response data
-	*/
-	memcpy8to32(init_vector, &buffer[data_length + 1 - 16],16);
+
 														
 }

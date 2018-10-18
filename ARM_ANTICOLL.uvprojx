@@ -312,7 +312,7 @@
           <Cads>
             <interw>1</interw>
             <Optim>1</Optim>
-            <oTime>0</oTime>
+            <oTime>1</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
             <Strict>0</Strict>
@@ -496,14 +496,14 @@
               <FilePath>.\CMD\read_data.c</FilePath>
             </File>
             <File>
-              <FileName>rw_aes.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\CMD\rw_aes.c</FilePath>
-            </File>
-            <File>
               <FileName>sel_app.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\CMD\sel_app.c</FilePath>
+            </File>
+            <File>
+              <FileName>rw_aes.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\CMD\rw_aes.c</FilePath>
             </File>
             <File>
               <FileName>write_data.c</FileName>

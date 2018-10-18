@@ -15,7 +15,8 @@ void auth_des(ISOAPDU * papdu_command)
     static uint8_t  key[16]  = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 						      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; 
 
-    uint8_t  buffer[256]; 
+    uint8_t  buffer[256];
+						
 
 	if((cmd_status.authentication == 0) || (cmd_status.authentication == 2)) 
 	{
@@ -48,11 +49,13 @@ void auth_des(ISOAPDU * papdu_command)
 				CLKCON |= 0x04;
 
 				get_rand(8,randB);
-
+//				for(i=0;i<8;i++)
+//					randB[i] = 0x76;
+				
 
 			    xstsm212_tdes16_encrypt_tx(randB, key, buffer, 8);		
-				cmd_status.authentication = 1; 									 
-                iso14443send(buffer, 8, ADDITIONAL_FRAME);	
+					cmd_status.authentication = 1; 									 
+          iso14443send(buffer, 8, ADDITIONAL_FRAME);	
 			}
 			else
 			{

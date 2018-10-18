@@ -149,6 +149,7 @@ void
 firmware_xirka_response(ISOAPDU * papdu_command)
 {
 	unsigned int addr;
+
 	
 	if(papdu_command->pheader->INS == 0x02)
 			{	

@@ -7,6 +7,10 @@
 #include "cmd.h"
 #include "instruction.h"
 
+//#pragma push
+//#pragma O3
+//#pragma Otime
+
 #define PROTO14443_3_CONT       	0x00000000    // 14443-3 protocol isn't finish yet
 #define PROTO14443_3_FINISHED   	0x00000001    // 14443-3 protocol finished
 
@@ -69,9 +73,9 @@ size of a frame the PCD is able to receive */
 //#define	DIVISOR_SEND				0x30
 //#define	DIVISOR_RECEIVE				0x30
 
-#define FWI							0x80  ///*0xE0*/0x80	  //default 0x40		 0x80//desfire
+#define FWI							 0x80	  //default 0x40		 0x80//desfire
 //#define FWI							0x92
-#define	SFGI						0x01  ///*0x0E*/0x01	  //default 0x00		 0x01//desfire
+#define	SFGI						0x01	  //default 0x00		 0x01//desfire
 
 #define NAD_NOT_SUPPORTED			0x00
 #define CID_NOT_SUPPORTED			0x00  //0x00 //original					 0x02//desfire
@@ -139,19 +143,22 @@ void vutransmit(uint8_t length) //byte&bit transmit
 	//CL_CON = 0x0;
 }
 
+//#pragma push
+//#pragma O3
 static void vureceive(uint16_t * outputlen)//byte&bit receive
 {
-	 IFC |= 0x00000001; // Set modulator 1
+	// IFC |= 0x00000001; // Set modulator 1
 	
 	 CL_CON = 0x1;
    //while ((CL_CON & 0x4) == 0x00);
 	 __WFI();	
 	 //CL_CON = 0x0;
 	 
-	 IFC &= 0xFFFFFFFE; // Set modulator 0
+	// IFC &= 0xFFFFFFFE; // Set modulator 0
 	
    *outputlen = CL_SIZE;	 
 }
+//#pragma pop
 
 
 static void 
@@ -219,6 +226,7 @@ anticoll_lev2(uint8_t * pbuff, uint8_t idxbytecoll, uint8_t idxbitcoll){
 
 }
 
+
 static uint8_t iso14443_3_handler(uint8_t * pbuff)
 {
 		uint8_t idxbytecoll,idxbitcoll,idxuidcoll,res,i,plus;
@@ -247,6 +255,7 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
 
             if(command==SELECT1)
 						{
+
                 if(pbuff[1] == FIRSTNVB) 
 								{ 
                 /* Number of valid bits = 16 bits( 2 Byte) , We'll send our first 3 byte UID CLn 
@@ -255,13 +264,18 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
                    
 
                     pbuff[0] = CTAG;
-                    pbuff[4] = 0x00;
-                    pbuff[4] ^= pbuff[0];
-                    for ( i=0; i<3; i++)
-										{
-											pbuff[i+1] = UID[i];
-											pbuff[4] ^= UID[i];
-                    }
+										//pbuff[4] = CTAG;
+//                    pbuff[4] = 0x00;
+                    //pbuff[4] ^= pbuff[0];
+//                    for ( i=0; i<3; i++)
+//										{
+//											pbuff[i+1] = UID[i];
+//											pbuff[4] ^= UID[i];
+//                    }
+										pbuff[1] = UID[0];
+										pbuff[2] = UID[1];
+										pbuff[3] = UID[2];
+										pbuff[4] = 0x77;//UID[8];
 										//bcc=pbuff[4];
                     vutransmit(5);
                     return PROTO14443_3_CONT;
@@ -284,7 +298,9 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
 										{
 												pbuff[0] = 0x24;   
 												//pbuff[0] = SAK_NOT_COMPLETE;//thomi	When b3 is set to 1, all other bits of SAK should be set to 0 [refer to 14443-3]
-												vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);					
+												//vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1); //d8 36
+												pbuff[1] = 0xd8;
+												pbuff[2] = 0x36;
 												vutransmit(3);
 												return PROTO14443_3_CONT;
 											
@@ -346,7 +362,9 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
 						}            
             else if(command == SELECT2)
 						{
-
+								z=1;
+								y =z;
+								z=y;
 								/* Select cascade no 2 begin here */
                 if(pbuff[1] == FIRSTNVB)
 								{
@@ -354,11 +372,16 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
                 
                 /* Send last 4 byte UID */
                     pbuff[4] = 0x00;
-                    for ( i=0; i<4; i++)
-										{
-                        pbuff[i] = UID[i+3];
-                        pbuff[4] ^= UID[i+3];
-                    }
+//                    for ( i=0; i<4; i++)
+//										{
+//                        pbuff[i] = UID[i+3];
+//                        pbuff[4] ^= UID[i+3];
+//                    }
+										pbuff[0] = UID[3];
+										pbuff[1] = UID[4];
+										pbuff[2] = UID[5];
+										pbuff[3] = UID[6];
+										pbuff[4] = 0x00;//UID[8];
 										//bcc1=pbuff[4];
                     vutransmit(5);
                     return PROTO14443_3_CONT;
@@ -376,7 +399,9 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
 										{
 													/* using 14443_4 protocol */
 													pbuff[0] = SAK_COMPLETE_ISO14443_4;
-													vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1);
+													//vucalc_crc(NFC_BUFFER, &NFC_BUFFER[2], &NFC_BUFFER[1], 1); //fc 70
+													pbuff[1] = 0xfc;
+													pbuff[2] = 0x70;
 													vutransmit(3);
 													isostate = ISO_STATE_ACTIVE;
 													//return PROTO14443_3_CONT;	//un-comment thomi
@@ -530,7 +555,9 @@ static uint8_t iso14443_4_handler(uint8_t * pbuff)
             pbuff[3] = TB1;
             pbuff[4] = TC1;
             pbuff[5] = HISTORICAL_BYTE;
-						vucalc_crc(NFC_BUFFER, &NFC_BUFFER[7], &NFC_BUFFER[6], 6);
+						//vucalc_crc(NFC_BUFFER, &NFC_BUFFER[7], &NFC_BUFFER[6], 6); // d6 ce ;55 78
+						pbuff[6] = 0xd6;
+						pbuff[7] = 0xce;
 						flag=2;
             vutransmit(8);
         break;
@@ -603,6 +630,8 @@ static uint8_t iso14443_4_handler(uint8_t * pbuff)
     }
     return PROTO14443_4_CONT;
 }
+
+
 uint16_t
 iso14443receive(ISOAPDU  *pisoapdu)
 {
@@ -640,7 +669,7 @@ iso7816send(uint8_t * payload, uint16_t len, uint8_t status)
 	uint8_t sw1,sw2;
 //	uint8_t LRC;
 
-//	
+	
 //	if((VDET & 0x40)==0x40){ //mode contact
 //	
 //		LRC= block.NAD^block.PCB;
@@ -684,8 +713,8 @@ void
 iso14443send(uint8_t * payload, uint16_t len, uint8_t status)
 {
   uint16_t cnt;
-//	uint8_t LRC;
 	uint8_t sw1,sw2;
+//	uint8_t LRC;
 
 //	
 //	if((VDET & 0x40)==0x40){ // mode contact
@@ -792,4 +821,5 @@ iso14443waitreq(){
     
 }
 
+//#pragma pop
 

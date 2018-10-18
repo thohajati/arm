@@ -44,8 +44,7 @@ authenticate_aes(ISOAPDU* papdu_command)
 		unsigned char temp[32];
 		static unsigned char randB_byte[16];
 		unsigned char randA_byte[16];
-		unsigned char key_byte[16];
-
+		unsigned char key_byte[16];		
 
   
 	if((cmd_status.authentication == 0) || (cmd_status.authentication == 2)) 
@@ -80,7 +79,9 @@ authenticate_aes(ISOAPDU* papdu_command)
 				for (i=0; i<4; i++)
 					init_vector[i] = 0x00000000;				
 				
-				get_rand(16,randB_byte);			
+				get_rand(16,randB_byte);
+//				for(i=0;i<16;i++)
+//					randB_byte[i] = 0x76;
 				
 				memcpy8to32(randB_AES,randB_byte,16);
 				memcpy8to32(key,key_byte,16);
@@ -185,32 +186,29 @@ authenticate_aes(ISOAPDU* papdu_command)
 			
 			memcpy32to8(temp,buffer,4);
 			
-            resp = (DESFIRE_SW1<<8) | OPERATION_OK;            
-
-				iso14443send(temp,16,resp);
-
-            
-			cmd_status.authentication = 2;									
-
-			/* reset IV */
+						/* reset IV */
 			for (i=0; i<4; i++)
-					init_vector[i] = 0x00000000;													    								
+					init_vector[i] = 0x00000000;	
+			
+      resp = (DESFIRE_SW1<<8) | OPERATION_OK;            
+			iso14443send(temp,16,resp);
+            
+			cmd_status.authentication = 2;																					    								
 	
 	   }
 	   else
 	   {
-            resp = (DESFIRE_SW1<<8)|AUTHENTICATION_ERROR;
-
+          resp = (DESFIRE_SW1<<8)|AUTHENTICATION_ERROR;
 					iso14443sendresp(resp);
 			
-            cmd_status.authentication = 0;							 
+           cmd_status.authentication = 0;							 
 	   }
 	
 	}                                  
 	else
 	{
 	    resp = (DESFIRE_SW1<<8)|PERMISSION_DENIED;
-					iso14443sendresp(resp);
+			iso14443sendresp(resp);
 
 		
 	}
