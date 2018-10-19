@@ -362,9 +362,6 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
 						}            
             else if(command == SELECT2)
 						{
-								z=1;
-								y =z;
-								z=y;
 								/* Select cascade no 2 begin here */
                 if(pbuff[1] == FIRSTNVB)
 								{
