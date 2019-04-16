@@ -145,6 +145,10 @@ firmware_iso7816_response(ISOAPDU * papdu_command)
 	}
 }
 
+#pragma push
+#pragma O3
+#pragma Otime
+
 void 
 firmware_xirka_response(ISOAPDU * papdu_command)
 {
@@ -179,6 +183,8 @@ firmware_xirka_response(ISOAPDU * papdu_command)
 			}
 		
 }
+
+#pragma pop
 
 void delay (void)
 {

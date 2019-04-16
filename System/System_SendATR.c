@@ -30,7 +30,7 @@ void System_SendATR(void) {
 				aATR[iATR] = iso_rx();	// PPS
 			}
 
-	 	delay_2(); //to connect with black reader acs contact
+			delay_2(); //to connect with black reader acs contact
 
 			//Accept All PPS
 			for(iATR = 0; iATR < 4; ++iATR) {

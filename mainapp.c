@@ -26,19 +26,18 @@ int main()
 
 		vuiso14443_init();
 
-//		if((VDET & 0x40) == 0x40){ //mode contact
-//			  HAL_Init();
-//			  System_SendATR();
-//				System_Dispatcher();
-//		}else{
-	 // Enable clock Interface
+		if((VDET & 0x40) == 0x40){ //mode contact
+			  HAL_Init();
+			  System_SendATR();
+				System_Dispatcher();
+		}else{
 
 			while(1){
 					iso14443receive(&isoapdu);
 					system_dispatcher(&isoapdu);
 			
 			}
-//	}
+	}
 }
 
 int system_dispatcher(ISOAPDU  *pisoapdu)
