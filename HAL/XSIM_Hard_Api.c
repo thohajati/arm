@@ -206,6 +206,7 @@ vucalc_crc(unsigned char * pdatain,
 {
 	int i;
 	
+	CLKCON &= ~0x20; //???? padahal sebelumnya sudah mati (solve utk fga)
 	CLKCON |= 0x20;
 	CRC_MODE = 0x1;
   CRC_INIT = 0x1;
@@ -222,7 +223,8 @@ vucalc_crc(unsigned char * pdatain,
 	*pcrcmsb = (unsigned char) (CRC_DATA>>8);
 	*pcrclsb  = (unsigned char) CRC_DATA;
 	 
-	CLKCON &= 0xDF;
+	//CLKCON &= 0xDF;
+	CLKCON &= ~0x20;
 
 //	ComputeCrc(pdatain, len, pcrclsb, pcrcmsb);	
 }
