@@ -143,22 +143,22 @@ void vutransmit(uint8_t length) //byte&bit transmit
 	//CL_CON = 0x0;
 }
 
-//#pragma push
-//#pragma O3
+#pragma push
+#pragma O3
 static void vureceive(uint16_t * outputlen)//byte&bit receive
 {
-	// IFC |= 0x00000001; // Set modulator 1
+	 IFC |= 0x00000001; // Set modulator 1
 	
 	 CL_CON = 0x1;
    //while ((CL_CON & 0x4) == 0x00);
 	 __WFI();	
-	 //CL_CON = 0x0;
-	 
-	// IFC &= 0xFFFFFFFE; // Set modulator 0
+	 //CL_CON = 0x0;	 
 	
    *outputlen = CL_SIZE;	 
+	 IFC &= ~0x00000001; // Set modulator 0
+	
 }
-//#pragma pop
+#pragma pop
 
 
 static void 
@@ -275,7 +275,7 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
 										pbuff[1] = UID[0];
 										pbuff[2] = UID[1];
 										pbuff[3] = UID[2];
-										pbuff[4] = 0x77;//UID[8];
+										pbuff[4] = CTAG ^ UID[0] ^ UID[1] ^ UID[2];//0x77;//UID[8];
 										//bcc=pbuff[4];
                     vutransmit(5);
                     return PROTO14443_3_CONT;
@@ -378,7 +378,7 @@ static uint8_t iso14443_3_handler(uint8_t * pbuff)
 										pbuff[1] = UID[4];
 										pbuff[2] = UID[5];
 										pbuff[3] = UID[6];
-										pbuff[4] = 0x00;//UID[8];
+										pbuff[4] = UID[3] ^ UID[4] ^ UID[5] ^ UID[6];//0x00;//UID[8];
 										//bcc1=pbuff[4];
                     vutransmit(5);
                     return PROTO14443_3_CONT;
